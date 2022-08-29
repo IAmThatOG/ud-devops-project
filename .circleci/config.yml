@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  slack: circleci/slack@4.10.1
+
 executors:
   aws_cli_executor:
     docker:
@@ -16,6 +19,21 @@ executors:
   nodejs_executor:
     docker:
       - image: cimg/node:13.8.0
+
+commands:
+  notify_on_failure:
+    steps:
+      - slack/notify:
+          event: fail
+          channel: $SLACK_DEFAULT_CHANNEL
+          template: basic_fail_1
+
+  notify_on_success:
+    steps:
+      - slack/notify:
+          event: pass
+          channel: $SLACK_DEFAULT_CHANNEL
+          template: success_tagged_deployment_1
 
 jobs:
   build-frontend:
@@ -34,6 +52,7 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
+      - notify_on_failure
 
   build-backend:
     executor: nodejs_executor
@@ -51,6 +70,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
+      - notify_on_failure
 
   test-frontend:
     executor: nodejs_executor
@@ -68,6 +88,7 @@ jobs:
             cd frontend
             npm i
             npm run test
+      - notify_on_failure
 
   test-backend:
     executor: nodejs_executor
@@ -85,6 +106,7 @@ jobs:
             cd backend
             npm i
             npm run test
+      - notify_on_failure
 
   scan-frontend:
     executor: nodejs_executor
@@ -103,6 +125,7 @@ jobs:
             npm i
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
+      - notify_on_failure
 
   scan-backend:
     executor: nodejs_executor
@@ -122,6 +145,7 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
+      - notify_on_failure
 
 workflows:
   default:
@@ -140,3 +164,6 @@ workflows:
       - scan-backend:
           requires:
             - build-backend
+      - notify_on_success:
+          requires:
+            - scan-backend
