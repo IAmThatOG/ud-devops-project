@@ -229,8 +229,8 @@ workflows:
             - build-backend
       - deploy-infrastructure:
           requires:
-            - build-frontend
-            - build-backend
+            - test-frontend
+            - test-backend
             - scan-frontend
             - scan-backend
       - notify_on_success:
