@@ -1,10 +1,10 @@
 ---
-- name: "update apt packages."
+- name: update apt packages.
   become: true
   apt:
     update_cache: true
 
-- name: "upgrade packages"
+- name: upgrade packages
   become: true
   apt:
     upgrade: true
@@ -14,14 +14,14 @@
   apt:
     autoremove: true
 
-- name: "install dependencies"
+- name: install dependencies
   become: true
   apt:
     name: ["nodejs", npm]
     state: latest
     update_cache: true
 
-- name: "install pm2"
+- name: install pm2
   become: true
   shell: |
     npm install pm2 -g
