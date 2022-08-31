@@ -26,26 +26,19 @@
   shell: |
     npm install pm2 -g
 
-- name: Create backend app directory
-  file:
-    path: ~/backend-app
-    state: directory
-
 - name: Unarchive backend files
   become: true
   unarchive:
     src: files/artifact.tar.gz
-    dest: ~/backend-app
+    dest: .
 
 - name: Installing Node Dependencies
   shell: |
-    cd ~/backend-app
     npm i
 
 - name: start app
   become: true
   shell: |
-    cd ~/backend-app/dist
     pm2 stop default
     sudo pm2 start npm -- start
   environment:

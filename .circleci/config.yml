@@ -445,12 +445,12 @@ workflows:
       - configure-infrastructure:
           requires:
             - deploy-backend-infrastructure
+            - deploy-frontend-infrastructure
       - run-migrations:
           requires:
             - configure-infrastructure
       - deploy-frontend:
           requires:
-            - deploy-frontend-infrastructure
             - run-migrations
       - deploy-backend:
           requires:
