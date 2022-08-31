@@ -20,6 +20,10 @@ executors:
     docker:
       - image: cimg/node:13.8.0
 
+  base_executor:
+    docker:
+      - image: cimg/base:stable
+
 commands:
   notify_on_failure:
     steps:
@@ -27,13 +31,6 @@ commands:
           event: fail
           channel: $SLACK_DEFAULT_CHANNEL
           template: basic_fail_1
-
-  notify_on_success:
-    steps:
-      - slack/notify:
-          event: pass
-          channel: $SLACK_DEFAULT_CHANNEL
-          template: success_tagged_deployment_1
 
 jobs:
   build-frontend:
@@ -146,6 +143,14 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
       - notify_on_failure
+
+  notify_on_success:
+    executor: base_executor
+    steps:
+      - slack/notify:
+          event: pass
+          channel: $SLACK_DEFAULT_CHANNEL
+          template: success_tagged_deployment_1
 
 workflows:
   default:
