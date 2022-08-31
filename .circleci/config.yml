@@ -217,7 +217,6 @@ jobs:
           name: Install dependencies
           command: |
             # Your code here
-            yum install -y tar gzip
             apk add --update ansible
             pip install awscli
             aws --version
