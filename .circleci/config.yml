@@ -436,6 +436,7 @@ jobs:
           command: |
             # your code here
             sleep 3m
+            echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
             then
               return 0
