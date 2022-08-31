@@ -29,7 +29,6 @@ commands:
     steps:
       - slack/notify:
           event: fail
-          channel: C040U1KF8D6
           template: basic_fail_1
 
 jobs:
@@ -149,7 +148,6 @@ jobs:
     steps:
       - slack/notify:
           event: pass
-          channel: C040U1KF8D6
           template: success_tagged_deployment_1
 
 workflows:
