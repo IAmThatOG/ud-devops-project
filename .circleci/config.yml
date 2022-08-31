@@ -450,6 +450,7 @@ workflows:
             - configure-infrastructure
       - deploy-frontend:
           requires:
+            - deploy-frontend-infrastructure
             - run-migrations
       - deploy-backend:
           requires:
