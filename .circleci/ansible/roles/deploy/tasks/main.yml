@@ -1,28 +1,28 @@
 ---
 - name: update apt packages.
-  become: true
+  become: yes
   apt:
-    update_cache: true
+    update_cache: yes
 
 - name: upgrade packages
-  become: true
+  become: yes
   apt:
-    upgrade: true
+    upgrade: yes
 
 - name: remove dependencies that are no longer required
-  become: true
+  become: yes
   apt:
-    autoremove: true
+    autoremove: yes
 
 - name: "install dependencies"
-  become: true
+  become: yes
   apt:
     name: ["nodejs", "npm"]
     state: latest
-    update_cache: true
+    update_cache: yes
 
 - name: install pm2
-  become: true
+  become: yes
   npm:
     name: pm2
     global: yes
@@ -30,19 +30,15 @@
     production: yes
 
 - name: Unarchive backend files
-  become: true
+  become: yes
   unarchive:
     src: files/artifact.tar.gz
     dest: .
 
-- name: Installing Node Dependencies
-  become: true
-  shell: |
-    npm i
-
 - name: start app
-  become: true
+  become: yes
   shell: |
+    npm install
     sudo pm2 stop default
     sudo pm2 start npm -- start
   environment:
