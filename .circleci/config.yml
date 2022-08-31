@@ -45,7 +45,6 @@ commands:
           when: on_fail
           command: |
             # Your code here
-            apk add --no-cache aws-cli
             aws s3 rm s3://udapeople-<<parameters.workflowID>> --recursive
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflowID >>
             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.workflowID >>
