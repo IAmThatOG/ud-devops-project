@@ -277,6 +277,7 @@ jobs:
       - run:
           name: Install Dependencies
           command: |
+            apk add --update curl
             apk add --update nodejs npm
             pip install awscli
             aws --version
@@ -292,7 +293,7 @@ jobs:
       - run:
           name: Echo migration output
           command: |
-            cat migrations_dump.txt
+            cat ~/project/backend/migrations_dump.txt
       - run:
           name: Send migration results to kvdb.io
           command: |
@@ -430,7 +431,6 @@ workflows:
             - scan-backend
       - configure-infrastructure:
           requires:
-            - deploy-frontend-infrastructure
             - deploy-backend-infrastructure
       - run-migrations:
           requires:
