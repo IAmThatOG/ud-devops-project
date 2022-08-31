@@ -17,14 +17,17 @@
 - name: "install dependencies"
   become: true
   apt:
-    name: ["nodejs", npm]
+    name: ["nodejs", "npm"]
     state: latest
     update_cache: true
 
 - name: install pm2
   become: true
-  shell: |
-    npm install pm2 -g
+  npm:
+    name: pm2
+    global: yes
+    state: latest
+    production: yes
 
 - name: Unarchive backend files
   become: true
@@ -40,8 +43,8 @@
 - name: start app
   become: true
   shell: |
-    pm2 stop default
-    pm2 start npm -- start
+    sudo pm2 stop default
+    sudo pm2 start npm -- start
   environment:
     - TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION')}}"
     - TYPEORM_ENTITIES: "{{ lookup('env', 'TYPEORM_ENTITIES')}}"
