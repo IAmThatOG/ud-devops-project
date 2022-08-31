@@ -419,10 +419,10 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
-            apk add --update curl aws-cli
+            apk add --update --no-cache tar gzip curl aws-cli
             aws --version
       - run:
-          name: Get backend url
+          name: Backend smoke test.
           command: |
             # your code here
             BACKEND_IP=$(aws ec2 describe-instances \
@@ -431,12 +431,7 @@ jobs:
               --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
-      - run:
-          name: Backend smoke test.
-          command: |
-            # your code here
             sleep 3m
-            echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
             then
               return 0
