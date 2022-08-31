@@ -1,1 +1,2 @@
 github url: https://github.com/IAmThatOG/ud-devops-project
+S3 public url: http://udapeople-57e284f.s3-website-us-east-1.amazonaws.com
