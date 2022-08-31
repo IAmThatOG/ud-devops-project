@@ -255,10 +255,19 @@ jobs:
       - destroy-environment
 
   run-migrations:
-    executor: nodejs_executor
+    executor: python_alpine_executor
     steps:
       # Checkout code from git
       - checkout
+      - restore_cache:
+          keys:
+            - backend-build
+      - run:
+          name: Install Dependencies
+          command: |
+            apk add --update nodejs npm
+            pip install awscli
+            aws --version
       - run:
           name: Run migrations
           command: |
