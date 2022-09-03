@@ -18,7 +18,7 @@ executors:
 
   nodejs_executor:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/node:18.8.0
 
   base_executor:
     docker:
