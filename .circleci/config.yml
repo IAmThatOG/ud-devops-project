@@ -253,8 +253,7 @@ jobs:
           name: Install dependencies
           command: |
             # Your code here
-            apk add --update ansible
-            pip install awscli
+            apk add --update --no-cache ansible tar gzip aws-cli openssh
             aws --version
       - run:
           name: Configure server
@@ -263,30 +262,31 @@ jobs:
             cd .circleci/ansible
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
+          no_output_timeout: 30m
       # Here's where you will add some code to rollback on failure
       - destroy-environment
 
   run-migrations:
-    executor: python_alpine_executor
+    executor: nodejs_executor
     steps:
       # Checkout code from git
       - checkout
       - restore_cache:
           keys:
             - backend-build
-      - run:
-          name: Install Dependencies
-          command: |
-            apk add --update curl
-            apk add --update nodejs npm
-            pip install awscli
-            aws --version
+      # - run:
+      #     name: Install Dependencies
+      #     command: |
+      #       apk add --update curl
+      #       apk add --update nodejs npm
+      #       pip install awscli
+      #       aws --version
       - run:
           name: Run migrations
           command: |
             # Your code here
             cd backend
-            npm install
+            sudo npm install -g npm
             # Run and save the migration output
             npm run migrations > migrations_dump.txt
       - run:
@@ -314,16 +314,19 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/
-      - restore_cache:
-          keys:
-            - frontend-build
+      # - restore_cache:
+      #     keys:
+      #       - frontend-build
       - run:
           name: Install dependencies
           command: |
             # your code here
-            apk add --update curl
-            apk add --update nodejs npm
-            pip install awscli
+            apk add --update --no-cache tar
+            apk add --update --no-cache gzip
+            apk add --update --no-cache curl
+            apk add --update --no-cache nodejs 
+            apk add --update --no-cache npm
+            apk add --update --no-cache aws-cli
             aws --version
       - run:
           name: Get backend url
@@ -361,17 +364,20 @@ jobs:
       # attach workspace
       - attach_workspace:
           at: ~/
-      - restore_cache:
-          keys:
-            - backend-build
+      # - restore_cache:
+      #     keys:
+      #       - backend-build
       - run:
           name: Install dependencies
           command: |
             # your code here
-            apk add --update curl
-            apk add --update nodejs npm
-            apk add --update ansible
-            pip install awscli
+            apk add --update --no-cache tar
+            apk add --update --no-cache gzip
+            apk add --update --no-cache curl
+            apk add --update --no-cache nodejs 
+            apk add --update --no-cache npm
+            apk add --update --no-cache ansible
+            apk add --update --no-cache aws-cli
             aws --version
       - run:
           name: Deploy backend
@@ -379,21 +385,26 @@ jobs:
             # your code here
             cd backend
             pwd
+            touch .env
+            echo ENVIRONMENT=production > ".env"
+            echo TYPEORM_CONNECTION=postgres >> ".env"
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> ".env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> ".env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> ".env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ".env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ".env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ".env"
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> ".env"
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> ".env"
+            echo NODE_ENV=production >> ".env"
+
+            pwd
+            ls -lah
             npm install
             npm run build
             cd ..
             pwd
-            echo ENVIRONMENT=development > backend/.env
-            echo TYPEORM_CONNECTION=postgres >> backend/.env
-            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> backend/.env
-            echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
-            echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
-            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
-            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
-            echo NODE_ENV=development >> "backend/.env"
+            ls -lah
             # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
             mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
@@ -419,7 +430,7 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
-            apk add --update --no-cache tar gzip curl aws-cli
+            apk add --update --no-cache tar gzip curl nodejs npm aws-cli
             aws --version
       - run:
           name: Backend smoke test.
@@ -429,10 +440,12 @@ jobs:
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
+            echo ${BACKEND_IP}
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
-            sleep 3m
-            if curl "${API_URL}/api/status" | grep "ok"
+            echo "API_URL=${API_URL}"
+            echo "Sleeping for 1 minute"
+            sleep 60
+            if curl -v "${API_URL}/api/status" | grep "ok"
             then
               return 0
             else
