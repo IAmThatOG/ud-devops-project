@@ -23,8 +23,11 @@
 
 - name: install pm2
   become: true
-  shell: |
-    sudo npm install pm2@latest -g
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present
 
 - name: Unarchive backend files
   become: true

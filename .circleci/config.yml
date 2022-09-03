@@ -282,7 +282,7 @@ jobs:
             apk add --update --no-cache curl
             apk add --update --no-cache nodejs 
             apk add --update --no-cache npm
-            apk add --update --no-cache awscli
+            apk add --update --no-cache aws-cli
             aws --version
       - run:
           name: Run migrations
